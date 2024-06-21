@@ -1,0 +1,56 @@
+---
+  - name: Deployment
+    hosts: localhost
+    gather_facts: true
+    become: true
+    collections:
+      - ch_collections.base
+    vars:
+    roles:
+      - role: /root/roles/nfs_mounts
+        when: mounts is defined
+      - name: ch_collections.base.cloudwatch_agent_config
+        when: cw_log_files is defined or cw_collect_metrics is defined
+    tasks: 
+      - name: Retrieve instance metadata
+        amazon.aws.ec2_metadata_facts:
+
+      - name: Retrieve tags on instance
+        amazon.aws.ec2_tag_info:
+          region: "{{ ansible_ec2_placement_region }}"
+          resource: "{{ ansible_ec2_instance_id }}"
+        register: instance_tags
+
+      - name: Set Hostname (1/2)
+        ansible.builtin.lineinfile:
+          line: "{{ item }} {{ instance_tags.tags.Name }}.{{ instance_tags.tags.Domain }} {{ instance_tags.tags.Name }}"
+          regex: "^{{ item | regex_escape() }}.*$"
+          path: "/etc/hosts"
+        loop:
+          - "{{ ansible_facts['default_ipv4']['address'] }}"
+
+      - name: Set Hostname (2/2)
+        ansible.builtin.hostname:
+          name: "{{ instance_tags.tags.Name }}.{{ instance_tags.tags.Domain }}"
+          use: systemd
+
+      - name: Template oracle profile
+        ansible.builtin.blockinfile:
+          dest: "/home/oracle/.bash_profile"
+          owner: oracle
+          group: oracle
+          mode: '0640'
+          block: |
+            export TMP=/tmp
+            export TMPDIR=$TMP
+            export ORACLE_HOSTNAME={{ instance_tags.tags.Name }}.{{ instance_tags.tags.Domain }}
+            export ORACLE_UNQNAME={{ instance_tags.tags.UNQNAME }}
+            export ORACLE_BASE=/u01/app/oracle
+            export ORACLE_HOME=$ORACLE_BASE/product/12.1.0.2/db_1
+            export ORACLE_SID={{ instance_tags.tags.SID }}
+            export PATH=/usr/sbin:$PATH
+            export PATH=$ORACLE_HOME/bin:$PATH
+            export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+            export LD_LIBRARY_PATH=/u01/app/oracle/product/12.1.0.2/db_1/lib32
+            export LD_LIBRARY_PATH_64=/u01/app/oracle/product/12.1.0.2/db_1/lib
+            export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
