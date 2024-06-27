@@ -73,8 +73,8 @@
 
 - name: Create Oracle security limits
   ansible.builtin.template:
-    src: files/oracle-rdbms-server-12cR1-preinstall.conf
-    dest: /etc/security/limits.d/oracle-rdbms-server-12cR1-preinstall.conf 
+    src: files/oracle-rdbms-server-19-preinstall.conf
+    dest: /etc/security/limits.d/oracle-rdbms-server-19-preinstall.conf
     owner: root
     group: root
     
@@ -160,7 +160,7 @@
     group: oracle
     mode: '0755'
   loop: 
-    - /u01/app/oracle/product/12.1.0.2/db_1
+    - /u01/app/oracle/product/19/db_1
     - /u01/software/
     
 - name: "Get and unarchive installer files (test)"
@@ -221,7 +221,7 @@
         cmd: "{{ item }}"
       loop: 
         - "/u01/app/oraInventory/orainstRoot.sh"
-        - "/u01/app/oracle/product/12.1.0.2/db_1/root.sh"
+        - "/u01/app/oracle/product/19/db_1/root.sh"
   when: (ansible_virtualization_type != "docker") and ( install_oracle )
 
 - name: "Setup AFD Postcode lookup library (OLTP only)"
