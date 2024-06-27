@@ -1,6 +1,6 @@
-# ami-repository-template
+# Oracle-19-ami
 
-Provides a base template for Packer and Ansible based AMI builds.
+This repo contains code that will build an Oracle 19 AMI. This code will download the relevant Oracle 19 binaries and install using Oracle installation steps. Pre-requisites are also installed and configured as required.
 
 ### Ansible
 
