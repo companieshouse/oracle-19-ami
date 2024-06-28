@@ -42,9 +42,9 @@ source "amazon-ebs" "builder" {
 
   source_ami_filter {
     filters = {
-      virtualization-type = "hvm"
+#      virtualization-type = "hvm"
       name =  "${var.aws_source_ami_filter_name}"
-      root-device-type = "ebs"
+#      root-device-type = "ebs"
     }
     owners = ["${var.aws_source_ami_owner_id}"]
     most_recent = true
