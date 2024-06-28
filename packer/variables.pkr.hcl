@@ -29,7 +29,7 @@ variable "aws_source_ami_filter_name" {
 
 variable "aws_source_ami_owner_id" {
   type        = string
-  default     = "309956199498"
+  default     = "169942020521"
   description = "The source AMI owner ID; used in combination with aws_source_ami_filter_name to filter for matching source AMIs"
 }
 
