@@ -4,7 +4,7 @@
   gather_facts: yes
   tasks:
     - name: Placeholder tasks
-      command: cat /etc/*release
+      command: cat /etc/redhat-release
       register: cmd_out
 
     - debug: var={{item}}
