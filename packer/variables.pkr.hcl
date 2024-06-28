@@ -52,6 +52,7 @@ variable "data_volume_iops" {
 
 variable "data_volume_size_gib" {
   type        = number
+  default     - 0 
   description = "The EC2 instance data volume size in Gibibytes (GiB)"
 }
 
