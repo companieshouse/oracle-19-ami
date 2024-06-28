@@ -4,12 +4,11 @@
   gather_facts: yes
   tasks:
     - name: Placeholder tasks
-      ansible.builtin.command: cat /etc/*release
-      register: command_out
+      command: cat /etc/*release
+      register: cmd_out
 
     - debug: var={{item}}
-      with_item: command_out.stout_lines  
-
+      with_items: cmd_out.stdout_lines
       
 
   # collections:
