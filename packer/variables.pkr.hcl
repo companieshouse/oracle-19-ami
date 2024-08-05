@@ -5,7 +5,7 @@ variable "ami_account_ids" {
 
 variable "ami_name_prefix" {
   type        = string
-  default     = "unnamed"
+  default     = "oracle-19-ami"
   description = "The prefix string that will be used for the name tags of the resulting AMI and snapshot(s); the version string will be appended automatically"
 }
 
@@ -29,6 +29,7 @@ variable "aws_source_ami_filter_name" {
 
 variable "aws_source_ami_owner_id" {
   type        = string
+  default     = "416670754337"
   description = "The source AMI owner ID; used in combination with aws_source_ami_filter_name to filter for matching source AMIs"
 }
 
@@ -39,7 +40,7 @@ variable "aws_subnet_filter_name" {
 
 variable "configuration_group" {
   type        = string
-  default     = "unnamed"
+  default     = "oracle-19-ami"
   description = "The name of the group to which to add the instance for configuration purposes"
 }
 
@@ -51,6 +52,7 @@ variable "data_volume_iops" {
 
 variable "data_volume_size_gib" {
   type        = number
+  default     = 20 
   description = "The EC2 instance data volume size in Gibibytes (GiB)"
 }
 
@@ -74,7 +76,7 @@ variable "force_deregister" {
 
 variable "kms_key_id" {
   type        = string
-  default     = "alias/packer-builders-eu-west-2-kms"
+  default     = "alias/packer-builders-kms"
   description = "The KMS key ID or alias to use when encrypting the AMI EBS volumes; defaults to the AWS managed key if empty"
 }
 

@@ -2,36 +2,45 @@
 - hosts: all
   become: true
   gather_facts: yes
-  collections:
-    - ch_collections.base
-  roles:
-    - role: ch_collections.base.os_package_control
-      vars:
-        update_os: "{{ update_packages | default(false) }}"
-    - role: oracle-12
-      vars:
-        #Default to install when building AMI, and don't install in SSM runs for safety. 
-        #Extra vars take priority this so can be easily overridden per run as required
-        install_oracle: "{{ not SSM }}"
-        update_packages: "{{ not SSM }}"
-        update_aws_cli: "{{ not SSM }}"
-    - role: ch_collections.heritage_services.nfs
-      vars: 
-        install_watcher_service: false
-  tasks: 
-    - name: Setup deploy playbook and dependancies for first run
-      block:
-        - name: Copy Deployment files to host for first run
-          copy:
-            src: "{{ item }}"
-            dest: "{{ ansible_deploy_playbook_directory }}/{{ item | basename}}"
-            mode: 0755
-          with_fileglob:
-            - "deployment/*"
+  tasks:
+    - name: Placeholder tasks
+      command: cat /etc/redhat-release
+      register: cmd_out
 
-        - name: Setup deployment playbook dependancies for first run
-          command: "/usr/local/bin/ansible-galaxy install -f -r {{ansible_deploy_playbook_directory}}/requirements.yml"
-          register: requirements_output
-          changed_when: '"was installed successfully" in requirements_output.stdout'
-      #Don't run in SSM runs, unneeded as we have this in download package
-      when: not SSM
+    - debug: var={{item}}
+      with_items: cmd_out.stdout_lines
+      
+
+  # collections:
+  #   - ch_collections.base
+  # roles:
+  #   - role: ch_collections.base.os_package_control
+  #     vars:
+  #       update_os: "{{ update_packages | default(false) }}"
+  #   - role: oracle-12
+  #     vars:
+  #       #Default to install when building AMI, and don't install in SSM runs for safety. 
+  #       #Extra vars take priority this so can be easily overridden per run as required
+  #       install_oracle: "{{ not SSM }}"
+  #       update_packages: "{{ not SSM }}"
+  #       update_aws_cli: "{{ not SSM }}"
+  #   - role: ch_collections.heritage_services.nfs
+  #     vars: 
+  #       install_watcher_service: false
+  # tasks: 
+  #   - name: Setup deploy playbook and dependancies for first run
+  #     block:
+  #       - name: Copy Deployment files to host for first run
+  #         copy:
+  #           src: "{{ item }}"
+  #           dest: "{{ ansible_deploy_playbook_directory }}/{{ item | basename}}"
+  #           mode: 0755
+  #         with_fileglob:
+  #           - "deployment/*"
+
+  #       - name: Setup deployment playbook dependancies for first run
+  #         command: "/usr/local/bin/ansible-galaxy install -f -r {{ansible_deploy_playbook_directory}}/requirements.yml"
+  #         register: requirements_output
+  #         changed_when: '"was installed successfully" in requirements_output.stdout'
+  #     #Don't run in SSM runs, unneeded as we have this in download package
+  #     when: not SSM
