@@ -4,8 +4,7 @@
   ansible.builtin.dnf:
     name: "*"
     state: latest
-    allowerasing: yes
-    security: "{{ update_only_security_packages }}"
+    allowerasing: true
 
 - name: install boto and botocore
   ansible.builtin.pip:
@@ -21,7 +20,7 @@
   ansible.builtin.group:
     name: DBA
     state: present
-   
+
 - name: Allow 'DBA' group to sudo
   copy:
     content: |
@@ -33,17 +32,17 @@
     name: "{{ item.username }}"
     shell: /bin/bash
     groups: "DBA"
-    append: yes
+    append: true
     expires: -1
   loop: "{{ users }}"
 
 - name: Remove default session timeouts
-  ansible.builtin.file: 
+  ansible.builtin.file:
     name: /etc/profile.d/tmout.sh
     state: absent
 
 - name: Remove default session timeouts (2/2)
-  ansible.builtin.lineinfile:  
+  ansible.builtin.lineinfile:
     line: "ClientAliveCountMax {{ ClientAliveCountMax }}"
     path: /etc/ssh/sshd_config
     regexp: '^ClientAliveCountMax.*$'
@@ -69,7 +68,7 @@
     dest: /etc/security/limits.d/oracle-rdbms-server-19-preinstall.conf
     owner: root
     group: root
-    
+
 - name: Create any groups required
   ansible.builtin.group:
     name: "{{ item.name }}"
@@ -82,11 +81,11 @@
     name: "{{ item.name }}"
     uid: "{{ item.uid }}"
     groups: "{{ item.groups }}"
-    append: yes
+    append: true
   loop: "{{ oracle_users }}"
 
 - name: Check if AWS ClI executable exists
-  stat: 
+  stat:
     path: /usr/local/bin/aws
   register: aws_cli_stat
 
@@ -102,7 +101,7 @@
       ansible.builtin.unarchive:
         src: /tmp/awscli-exe-linux-x86_64.zip
         dest: /tmp/
-        remote_src: yes
+        remote_src: true
 
     - name: Install AWS CLIv2
       ansible.builtin.command: sh /tmp/aws/install
@@ -114,18 +113,18 @@
   ansible.builtin.systemd:
     name: firewalld
     state: stopped
-    enabled: no
+    enabled: false
   when: ansible_virtualization_type != "docker"
 
 - name: Update Postfix for correct domain
-  ansible.builtin.lineinfile:  
+  ansible.builtin.lineinfile:
     path: /etc/postfix/main.cf
     line: "mydomain = companieshouse.gov.uk"
     regexp: '^#mydomain = domain.tld'
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Update Postfix for correct SMTP relay
-  ansible.builtin.lineinfile:  
+  ansible.builtin.lineinfile:
     path: /etc/postfix/main.cf
     line: "relayhost = smtp-outbound.sharedservices.aws.internal"
     regexp: '#relayhost = $mydomain'
@@ -135,8 +134,8 @@
   ansible.builtin.systemd:
     name: postfix
     state: started
-    enabled: yes
-      
+    enabled: true
+
 - name: Put SELinux in permissive mode, logging actions that would be blocked.
   ansible.posix.selinux:
     policy: targeted
@@ -147,7 +146,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: oracle
     group: oracle
     mode: '0755'
