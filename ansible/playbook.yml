@@ -2,12 +2,8 @@
 - hosts: all
   become: true
   gather_facts: yes
-  collections:
-    - ch_collections.base
-  roles:
-    - role: ch_collections.base.os_package_control
-      vars:
-        update_os: "{{ update_packages | default(false) }}"
+ roles:
+    - role: oracle-19
 
   tasks:
     - name: Placeholder tasks
