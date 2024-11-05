@@ -1,10 +1,10 @@
 ---
 
-# - name: Upgrade all OS packages
-#   ansible.builtin.dnf:
-#     name: "*"
-#     state: latest
-#     allowerasing: true
+- name: Upgrade all OS packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    allowerasing: true
 
 - name: install boto and botocore
   ansible.builtin.pip:
