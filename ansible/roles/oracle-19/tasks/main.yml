@@ -1,8 +1,4 @@
 ---
-- name: install boto and botocore
-  ansible.builtin.pip:
-    name: ['boto', 'boto3', 'botocore']
-    umask: "0022"
 
 - name: Upgrade all OS packages
   ansible.builtin.dnf:
@@ -10,8 +6,12 @@
     state: latest
     allowerasing: yes
     security: "{{ update_only_security_packages }}"
-  when: update_packages
-    
+
+- name: install boto and botocore
+  ansible.builtin.pip:
+    name: ['boto', 'boto3', 'botocore']
+    umask: "0022"
+
 - name: Install pre-req packages
   ansible.builtin.dnf:
     name: "{{ oracle_prequisite_packages }}"
@@ -36,14 +36,6 @@
     append: yes
     expires: -1
   loop: "{{ users }}"
-
-- name: Adding user public keys
-  authorized_key:
-    user: "{{ item.username }}"
-    state: present
-    key: "{{ item.pub_ssh_key }}"
-  loop: "{{ users }}"
-  when: not ansible_check_mode
 
 - name: Remove default session timeouts
   ansible.builtin.file: 
@@ -116,7 +108,7 @@
       ansible.builtin.command: sh /tmp/aws/install
       args:
         creates: /usr/local/bin/aws
-  when: (aws_cli_stat.stat.exists == false) or (update_aws_cli)
+  # when: (aws_cli_stat.stat.exists == false) or (update_aws_cli)
 
 - name: Disable Firewalld
   ansible.builtin.systemd:
@@ -163,90 +155,90 @@
     - /u01/app/oracle/product/19/db_1
     - /u01/software/
     
-- name: "Get and unarchive installer files (test)"
-  block:
-    - name: Copy files from local dir to test host and unarchive
-      ansible.builtin.unarchive:
-        remote_src: no
-        src: "{{ item }}"
-        dest: "/u01/software/"
-        mode: 0775
-        owner: oracle
-        group: oracle
-      with_fileglob:
-        - files/*.zip
-  when: (ansible_virtualization_type == "docker") and ( install_oracle ) 
+# - name: "Get and unarchive installer files (test)"
+#   block:
+#     - name: Copy files from local dir to test host and unarchive
+#       ansible.builtin.unarchive:
+#         remote_src: no
+#         src: "{{ item }}"
+#         dest: "/u01/software/"
+#         mode: 0775
+#         owner: oracle
+#         group: oracle
+#       with_fileglob:
+#         - files/*.zip
+#   when: (ansible_virtualization_type == "docker") and ( install_oracle ) 
 
-- name: "Get and unarchive installer files (remote)"
-  block:
-    - name: Copy files
-      amazon.aws.aws_s3:
-        bucket: "{{ aws_s3_release_bucket }}"
-        object: "{{ item }}"
-        dest: "/tmp/{{ item | basename }}"
-        mode: get
-        overwrite: different
-        aws_access_key: "{{ aws_s3_release_bucket_access_key | default(omit) }}"
-        aws_secret_key: "{{ aws_s3_release_bucket_secret_key | default(omit) }}"
-      loop: "{{ aws_s3_release_object_paths }}"
+# - name: "Get and unarchive installer files (remote)"
+#   block:
+#     - name: Copy files
+#       amazon.aws.aws_s3:
+#         bucket: "{{ aws_s3_release_bucket }}"
+#         object: "{{ item }}"
+#         dest: "/tmp/{{ item | basename }}"
+#         mode: get
+#         overwrite: different
+#         aws_access_key: "{{ aws_s3_release_bucket_access_key | default(omit) }}"
+#         aws_secret_key: "{{ aws_s3_release_bucket_secret_key | default(omit) }}"
+#       loop: "{{ aws_s3_release_object_paths }}"
 
-    - name: Unarchive files 
-      ansible.builtin.unarchive:
-        remote_src: yes
-        src: "/tmp/{{ item | basename }}"
-        dest: "/u01/software/"
-        mode: 0775
-        owner: oracle
-        group: oracle
-      loop: "{{ aws_s3_release_object_paths }}"
-  when: (ansible_virtualization_type != "docker") and ( install_oracle ) 
+#     - name: Unarchive files 
+#       ansible.builtin.unarchive:
+#         remote_src: yes
+#         src: "/tmp/{{ item | basename }}"
+#         dest: "/u01/software/"
+#         mode: 0775
+#         owner: oracle
+#         group: oracle
+#       loop: "{{ aws_s3_release_object_paths }}"
+#   when: (ansible_virtualization_type != "docker") and ( install_oracle ) 
 
-- name: Install Oracle
-  block: 
-    - name: Download response file
-      ansible.builtin.copy:
-        src: oui12102.rsp
-        dest: /tmp/
-        owner: oracle
-        group: oracle
+# - name: Install Oracle
+#   block: 
+#     - name: Download response file
+#       ansible.builtin.copy:
+#         src: oui12102.rsp
+#         dest: /tmp/
+#         owner: oracle
+#         group: oracle
 
-    - name: Run Oracle Installer
-      ansible.builtin.shell:
-        cmd: "./runInstaller -silent -waitforcompletion -ignoreSysPrereqs -responseFile /tmp/oui12102.rsp"
-        chdir: "/u01/software/database"
-      become_user: oracle
+  #   - name: Run Oracle Installer
+  #     ansible.builtin.shell:
+  #       cmd: "./runInstaller -silent -waitforcompletion -ignoreSysPrereqs -responseFile /tmp/oui12102.rsp"
+  #       chdir: "/u01/software/database"
+  #     become_user: oracle
 
-    - name: Run Oracle installation postscripts
-      ansible.builtin.shell:
-        cmd: "{{ item }}"
-      loop: 
-        - "/u01/app/oraInventory/orainstRoot.sh"
-        - "/u01/app/oracle/product/19/db_1/root.sh"
-  when: (ansible_virtualization_type != "docker") and ( install_oracle )
+  #   - name: Run Oracle installation postscripts
+  #     ansible.builtin.shell:
+  #       cmd: "{{ item }}"
+  #     loop: 
+  #       - "/u01/app/oraInventory/orainstRoot.sh"
+  #       - "/u01/app/oracle/product/19/db_1/root.sh"
+  # when: (ansible_virtualization_type != "docker") and ( install_oracle )
 
-- name: "Setup AFD Postcode lookup library (OLTP only)"
-  block:
-    - name: ensure pcplus directory exists
-      file:
-        path: /opt/pcplus/
-        state: directory
+# - name: "Setup AFD Postcode lookup library (OLTP only)"
+#   block:
+#     - name: ensure pcplus directory exists
+#       file:
+#         path: /opt/pcplus/
+#         state: directory
 
-    - name: Copy files
-      amazon.aws.aws_s3:
-        bucket: "{{ aws_s3_release_bucket }}"
-        object: "pcplus/pcplus_linux64.tar.gz"
-        dest: "/tmp/pcplus_linux64.tar.gz"
-        mode: get
-        overwrite: different
-        aws_access_key: "{{ aws_s3_release_bucket_access_key | default(omit) }}"
-        aws_secret_key: "{{ aws_s3_release_bucket_secret_key | default(omit) }}"
+#     - name: Copy files
+#       amazon.aws.aws_s3:
+#         bucket: "{{ aws_s3_release_bucket }}"
+#         object: "pcplus/pcplus_linux64.tar.gz"
+#         dest: "/tmp/pcplus_linux64.tar.gz"
+#         mode: get
+#         overwrite: different
+#         aws_access_key: "{{ aws_s3_release_bucket_access_key | default(omit) }}"
+#         aws_secret_key: "{{ aws_s3_release_bucket_secret_key | default(omit) }}"
 
-    - name: Unarchive files 
-      ansible.builtin.unarchive:
-        remote_src: yes
-        src: "/tmp/pcplus_linux64.tar.gz"
-        dest: "/opt/pcplus/"
-        mode: 0664
-        owner: root
-        group: root
-  when: (ansible_virtualization_type != "docker") and ( install_postcode ) 
+#     - name: Unarchive files 
+#       ansible.builtin.unarchive:
+#         remote_src: yes
+#         src: "/tmp/pcplus_linux64.tar.gz"
+#         dest: "/opt/pcplus/"
+#         mode: 0664
+#         owner: root
+#         group: root
+#   when: (ansible_virtualization_type != "docker") and ( install_postcode ) 
