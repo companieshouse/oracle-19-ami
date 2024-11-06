@@ -153,7 +153,7 @@
     state: directory
     recurse: true
     owner: oracle
-    group: oracle
+    group: oinstall
     mode: '0755'
   loop:
     - /u01/app/oracle/product/19/db_1
