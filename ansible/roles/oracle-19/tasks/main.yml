@@ -11,6 +11,11 @@
     name: ['boto', 'boto3', 'botocore']
     umask: "0022"
 
+- name: Install additional packages
+  ansible.builtin.dnf:
+    name: "{{ additional_packages }}"
+    state: present
+
 - name: Install pre-req packages
   ansible.builtin.dnf:
     name: "{{ oracle_prequisite_packages }}"
