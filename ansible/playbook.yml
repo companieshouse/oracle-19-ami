@@ -7,5 +7,11 @@
       vars:
         update_os: "{{ update_packages | default(false) }}"
     - role: oracle-19
+      vars:
+        #Default to install when building AMI, and don't install in SSM runs for safety. 
+        #Extra vars take priority this so can be easily overridden per run as required
+        install_oracle: "{{ not SSM }}"
+        update_packages: "{{ not SSM }}"
+        update_aws_cli: "{{ not SSM }}"
 
   tasks:
