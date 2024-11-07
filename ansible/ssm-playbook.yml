@@ -15,10 +15,7 @@
         install_oracle: "{{ not SSM }}"
         update_packages: "{{ not SSM }}"
         update_aws_cli: "{{ not SSM }}"
-    - role: ch_collections.heritage_services.non_ami_nfs
-      vars: 
-        install_watcher_service: false
-      when: mounts is defined
+
     - name: ch_collections.base.cloudwatch_agent_config
       when: cw_log_files is defined or cw_collect_metrics is defined
   tasks: 
