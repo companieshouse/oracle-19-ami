@@ -1,0 +1,21 @@
+---
+additional_packages: 
+  - xorg-x11-xauth
+  - s-nail-14.9.22-6.el9.x86_64
+  - perl-Math-BigInt.noarch
+  - perl-Net-Ping.noarch
+  - postfix
+
+
+users: 
+  - username: jharvey
+  - username: hdickins
+  - username: abradshaw
+  - username: cafzal
+  - username: sgeorge
+  - username: mahmed
+  - username: mibrahim
+    
+#Variable to control flow of playbook, false assumes running in AMI build mode, true is for run via SSM on live server.
+SSM: false
+install_postcode: false

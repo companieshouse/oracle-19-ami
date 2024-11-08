@@ -2,10 +2,23 @@
 - hosts: all
   become: true
   gather_facts: yes
-  tasks:
-    - name: Placeholder tasks
-      command: cat /etc/redhat-release
-      register: cmd_out
+  roles:
+     - role: oracle-19
 
-    - debug: var={{item}}
-      with_items: cmd_out.stdout_lines
+  tasks:
+  - name: Setup deploy playbook and dependancies for first run
+    block:
+     - name: Copy Deployment files to host for first run
+       copy:
+        src: "{{ item }}"
+        dest: "{{ ansible_deploy_playbook_directory }}/{{ item | basename}}"
+        mode: 0755
+       with_fileglob:
+        - "deployment/*"
+
+     - name: Setup deployment playbook dependancies for first run
+       command: "/usr/local/bin/ansible-galaxy install -f -r {{ansible_deploy_playbook_directory}}/requirements.yml"
+       register: requirements_output
+       changed_when: '"was installed successfully" in requirements_output.stdout'
+     #Don't run in SSM runs, unneeded as we have this in download package
+    when: not SSM
