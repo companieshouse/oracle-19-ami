@@ -5,12 +5,12 @@
     umask: "0022"
 
 - name: Install additional packages
-  ansible.builtin.dnf:
+  ansible.builtin.package:
     name: "{{ additional_packages }}"
     state: present
 
 - name: Install pre-req packages
-  ansible.builtin.dnf:
+  ansible.builtin.package:
     name: "{{ oracle_prequisite_packages }}"
     state: present
 

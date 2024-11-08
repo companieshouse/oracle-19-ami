@@ -1,11 +1,4 @@
 ---
-aws_s3_release_bucket: "shared-services.eu-west-2.resources.ch.gov.uk"
-aws_s3_release_object_paths:
-  - "/oracle/19/V46095-01_1of2.zip"
-  - "/oracle/19/V46095-01_2of2.zip"
-aws_s3_release_bucket_access_key: ""
-aws_s3_release_bucket_secret_key: ""
-
 oracle_groups:
   - gid: 54321
     name: oinstall
