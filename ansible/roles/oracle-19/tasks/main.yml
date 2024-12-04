@@ -151,3 +151,6 @@
   loop:
     - /u01/app/oracle/product/19/db_1
     - /u01/software/
+
+- name: Disable transparent hugepages
+  ansible.builtin.command: grubby --args="transparent_hugepage=never" --update-kernel ALL
